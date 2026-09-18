@@ -1,78 +1,41 @@
-# SILA AI
+# SILA AI — local and production use
 
-SILA AI is an English and Swahili assistant with grammar, code, business, and document review modes.
+## Browser login flow
 
-## Run locally
+Open `/auth.html` to sign in or create an account. Successful authentication sets an HTTP-only cookie and redirects to the main SILA app. The browser then calls `/api/chat` directly; no curl or API-key testing is required for normal users.
 
-Requirements:
+Authentication and chat require a reachable PostgreSQL database, `JWT_SECRET`, and `OPENAI_API_KEY`.
 
-- Node.js 18 or newer
-- Git
-- Docker Desktop, or another reachable PostgreSQL database
-- An OpenAI API key
-
-Clone and install:
+## Local startup
 
 ```bash
 git clone https://github.com/silakasee8-design/Sila-ai.git
 cd Sila-ai
 npm install
 cp .env.example .env
-```
-
-Start local PostgreSQL with Docker:
-
-```bash
 docker compose up -d postgres
-```
-
-Then edit `.env` and set the local database and private secrets:
-
-```env
-PORT=3000
-OPENAI_API_KEY=your_real_openai_api_key
-OPENAI_MODEL=gpt-4o-mini
-DATABASE_URL=postgres://sila:sila_local_password@localhost:5432/sila
-JWT_SECRET=replace_with_a_long_random_secret
-INTEGRATION_API_KEY=replace_with_a_long_random_integration_key
-```
-
-Generate safe random values instead of the placeholders. For example, with Node.js:
-
-```bash
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-```
-
-Run that command twice: use one value for `JWT_SECRET` and another for `INTEGRATION_API_KEY`.
-
-Start SILA:
-
-```bash
 npm start
 ```
 
-Open <http://localhost:3000>.
+Open:
 
-The server creates the `users` and `messages` tables automatically when it starts. Login, `/api/chat`, and `/api/history` require both `DATABASE_URL` and `JWT_SECRET` and a reachable PostgreSQL database.
+```text
+http://localhost:3000/auth.html
+```
 
-Check health:
+Verify the service:
 
 ```bash
 curl http://localhost:3000/api/health
 ```
 
-Stop the local database when finished:
+The weather dashboard is available at `/weather-dashboard.html` and uses Open-Meteo without a weather API key.
 
-```bash
-docker compose down
-```
+## Runtime checklist
 
-Use `docker compose down -v` only if you also want to delete local chat data.
-
-## Render
-
-The included `render.yaml` creates the web service and PostgreSQL database. In Render, add `OPENAI_API_KEY`; `JWT_SECRET`, `INTEGRATION_API_KEY`, and `DATABASE_URL` are configured by the Blueprint. Never paste secrets into tracked files.
-
-## Security
-
-Never commit `.env`, API keys, database URLs, passwords, OAuth secrets, or access tokens. `.env` is ignored by Git. If a secret is exposed, revoke and replace it immediately.
+- Use Node.js 18 or newer.
+- Set `OPENAI_API_KEY`, `DATABASE_URL`, and `JWT_SECRET`.
+- Keep `.env` out of Git; never commit real credentials.
+- Start PostgreSQL before starting the server.
+- If chat returns “Please log in”, open `/auth.html` first.
+- If chat returns a service configuration error, inspect `/api/health` before troubleshooting the browser.
