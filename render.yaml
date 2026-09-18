@@ -18,8 +18,9 @@ services:
         fromDatabase:
           name: sila-db
           property: connectionString
-  - type: pserv
-    name: sila-db
+
+databases:
+  - name: sila-db
     region: oregon
     plan: free
     databaseName: sila
