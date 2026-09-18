@@ -10,6 +10,8 @@ const app = express();
 const port = process.env.PORT || 3000;
 const isProduction = process.env.NODE_ENV === 'production';
 const jwtSecret = process.env.JWT_SECRET;
+const integrationApiKey = process.env.INTEGRATION_API_KEY || null;
+const whatsappVerifyToken = process.env.WHATSAPP_VERIFY_TOKEN || null;
 const pool = process.env.DATABASE_URL ? new Pool({ connectionString: process.env.DATABASE_URL, ssl: isProduction ? { rejectUnauthorized: false } : false }) : null;
 const client = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
 
@@ -60,6 +62,34 @@ function authRequired(req, res, next) {
 function validEmail(email) { return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email); }
 function resolveMode(mode) { const value = typeof mode === 'string' ? mode.toLowerCase() : 'general'; return modePrompts[value] ? value : 'general'; }
 
+function integrationKeyRequired(req, res, next) {
+  if (!integrationApiKey) {
+    return res.status(503).json({ error: 'Integration API key is not configured.' });
+  }
+  const provided = req.headers['x-api-key'];
+  if (provided !== integrationApiKey) return res.status(401).json({ error: 'Invalid integration key.' });
+  next();
+}
+
+async function generateReply(message, mode = 'general') {
+  const selectedMode = resolveMode(mode);
+  if (!client) {
+    throw new Error('The AI service is not configured yet.');
+  }
+
+  const completion = await client.chat.completions.create({
+    model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+    messages: [
+      { role: 'system', content: modePrompts[selectedMode].system },
+      { role: 'user', content: message }
+    ],
+    temperature: 0.7,
+    max_tokens: 850
+  });
+
+  return completion.choices?.[0]?.message?.content?.trim() || 'I could not generate a reply. Please try again.';
+}
+
 app.get('/api/health', async (req, res) => {
   let database = false;
   try {
@@ -67,7 +97,7 @@ app.get('/api/health', async (req, res) => {
   } catch (error) {
     database = false;
   }
-  res.json({ ok: true, aiConfigured: Boolean(client), databaseConfigured: Boolean(pool) && database, model: process.env.OPENAI_MODEL || 'gpt-4o-mini' });
+  res.json({ ok: true, aiConfigured: Boolean(client), databaseConfigured: Boolean(pool) && database, integrationApiConfigured: Boolean(integrationApiKey), model: process.env.OPENAI_MODEL || 'gpt-4o-mini' });
 });
 
 app.post('/api/auth/register', async (req, res) => {
@@ -137,27 +167,93 @@ app.post('/api/chat', authRequired, async (req, res) => {
   const mode = resolveMode(req.body.mode);
   if (!message) return res.status(400).json({ error: 'Message is required.' });
   if (message.length > 8000) return res.status(413).json({ error: 'Message is too long.' });
-  if (!client) return res.status(503).json({ error: 'The AI service is not configured yet.' });
 
   try {
+    if (!pool) return res.status(503).json({ error: 'Database is not configured.' });
     await pool.query('INSERT INTO messages(user_id,role,content) VALUES($1,$2,$3)', [req.user.id, 'user', message]);
     const previous = await pool.query('SELECT role,content FROM messages WHERE user_id=$1 ORDER BY created_at DESC LIMIT 20', [req.user.id]);
-    const systemMessage = modePrompts[mode].system;
+
     const completion = await client.chat.completions.create({
       model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
       messages: [
-        { role: 'system', content: systemMessage },
+        { role: 'system', content: modePrompts[mode].system },
         ...previous.rows.reverse().map((row) => ({ role: row.role, content: row.content }))
       ],
       temperature: 0.7,
       max_tokens: 850
     });
+
     const reply = completion.choices?.[0]?.message?.content?.trim() || 'I could not generate a reply. Please try again.';
     await pool.query('INSERT INTO messages(user_id,role,content) VALUES($1,$2,$3)', [req.user.id, 'assistant', reply]);
     res.json({ reply, mode });
   } catch (error) {
     console.error('Request failed:', error.message);
     res.status(502).json({ error: 'The AI service could not process your request.' });
+  }
+});
+
+app.get('/api/integrations/modes', (req, res) => {
+  res.json({
+    modes: ['general', 'grammar', 'code', 'business', 'document'],
+    websiteReady: true,
+    mobileReady: true,
+    whatsappReady: Boolean(whatsappVerifyToken),
+    gmailReady: false
+  });
+});
+
+app.post('/api/integrations/chat', integrationKeyRequired, async (req, res) => {
+  const message = typeof req.body.message === 'string' ? req.body.message.trim() : '';
+  const mode = resolveMode(req.body.mode);
+
+  if (!message) return res.status(400).json({ error: 'Message is required.' });
+  if (message.length > 8000) return res.status(413).json({ error: 'Message is too long.' });
+
+  try {
+    const reply = await generateReply(message, mode);
+    res.json({ reply, mode, source: 'integration-api' });
+  } catch (error) {
+    console.error('Integration request failed:', error.message);
+    res.status(502).json({ error: error.message || 'The AI service could not process your request.' });
+  }
+});
+
+app.get('/api/webhooks/whatsapp', (req, res) => {
+  if (!whatsappVerifyToken) return res.status(503).json({ error: 'WhatsApp webhook is not configured.' });
+  const mode = req.query['hub.mode'];
+  const token = req.query['hub.verify_token'];
+  const challenge = req.query['hub.challenge'];
+
+  if (mode === 'subscribe' && token === whatsappVerifyToken) {
+    return res.status(200).send(challenge || 'ok');
+  }
+
+  return res.status(403).json({ error: 'Forbidden' });
+});
+
+app.post('/api/webhooks/whatsapp', async (req, res) => {
+  if (!whatsappVerifyToken) return res.status(503).json({ error: 'WhatsApp webhook is not configured.' });
+
+  try {
+    const body = req.body || {};
+    const entry = Array.isArray(body.entry) ? body.entry[0] : null;
+    const change = entry && Array.isArray(entry.changes) ? entry.changes[0] : null;
+    const value = change ? change.value : null;
+    const messages = value && Array.isArray(value.messages) ? value.messages : [];
+
+    if (!messages.length) {
+      return res.status(200).json({ ok: true, message: 'Webhook received with no message payload.' });
+    }
+
+    const incomingText = messages[0]?.text?.body || '';
+    const from = messages[0]?.from || 'unknown';
+    if (!incomingText) return res.status(200).json({ ok: true, message: 'No text message to process.' });
+
+    const reply = await generateReply(incomingText, 'general');
+    res.status(200).json({ ok: true, reply, from, source: 'whatsapp-webhook' });
+  } catch (error) {
+    console.error('WhatsApp webhook failed:', error.message);
+    res.status(502).json({ error: 'WhatsApp processing failed.' });
   }
 });
 
