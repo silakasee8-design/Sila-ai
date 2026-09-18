@@ -1,52 +1,83 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0b0d0e">
+<meta name="description" content="SILA AI helps you think, write, plan, build, and create in English or Swahili.">
 <title>SILA AI — Your AI. Your Ideas. Your Future.</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#0b0d0e;color:#f5f0e8;font-family:Arial,sans-serif}
-header{padding:16px;border-bottom:1px solid #292b2d;background:#101213}.wrap{max-width:760px;margin:auto;padding:22px 16px 50px}
-.logo{font:27px Georgia;letter-spacing:2px}.logo span{font:12px Arial;color:#aaa;letter-spacing:3px}
-.hero{padding:25px 4px}.eyebrow{font-size:11px;letter-spacing:4px;color:#aaa}
-h1{font:50px/1.02 Georgia;margin:20px 0}h1 em{color:#ff6b3d}.hero p{font-size:17px;line-height:1.6;color:#c8c4bd}
-button{border:0;border-radius:14px;padding:14px 18px;font-weight:bold}.primary{background:#ff6b3d;color:#111;width:100%;font-size:16px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.card{background:#151819;border:1px solid #2c2e30;border-radius:20px;padding:18px;margin:14px 0}
-.tool{min-height:125px;cursor:pointer}.tool h3{margin:9px 0 6px}.tool p{margin:0;color:#aaa;font-size:13px;line-height:1.4}.icon{font-size:24px}
-#chat{display:none}.messages{height:330px;overflow:auto}.msg{padding:12px 14px;border-radius:15px;margin:9px 0;line-height:1.45;white-space:pre-wrap}.user{background:#ff6b3d;color:#111;margin-left:25%}.bot{background:#222627;margin-right:10%}
-.row{display:flex;gap:8px}.row input{flex:1;background:#0d0f10;border:1px solid #383b3d;color:#fff;border-radius:13px;padding:13px;outline:none}.row button{width:auto}.ghost{background:#222627;color:#eee;margin-top:10px}
-@media(max-width:520px){h1{font-size:44px}}
-</style></head>
+:root{--bg:#0b0d0e;--panel:#151819;--panel-2:#202526;--text:#f5f0e8;--muted:#aaa;--accent:#ff6b3d;--border:#2c2e30}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+button,input{font:inherit}
+button{border:0;border-radius:14px;padding:14px 18px;font-weight:bold;cursor:pointer}
+button:focus-visible,.tool:focus-visible,input:focus-visible{outline:3px solid #ffd1c2;outline-offset:3px}
+header{padding:16px;border-bottom:1px solid #292b2d;background:#101213;position:sticky;top:0;z-index:2}
+.wrap{max-width:760px;margin:auto;padding:22px 16px 50px}
+.logo{font:27px Georgia,serif;letter-spacing:2px}.logo span{font:12px Arial,sans-serif;color:var(--muted);letter-spacing:3px}
+.hero{padding:42px 4px 30px}.eyebrow{font-size:11px;letter-spacing:4px;color:var(--muted)}
+h1{font:50px/1.02 Georgia,serif;margin:20px 0}h1 em{color:var(--accent);font-style:normal}.hero p{font-size:17px;line-height:1.6;color:#c8c4bd}
+.primary{background:var(--accent);color:#111;width:100%;font-size:16px}.primary:hover{filter:brightness(1.08)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:18px;margin:14px 0}
+.tool{min-height:125px;cursor:pointer;transition:transform .2s,border-color .2s}.tool:hover{transform:translateY(-3px);border-color:var(--accent)}
+.tool h3{margin:9px 0 6px}.tool p{margin:0;color:var(--muted);font-size:13px;line-height:1.4}.icon{font-size:24px}
+#chat{display:none}.messages{height:330px;overflow:auto;padding-right:4px}.msg{padding:12px 14px;border-radius:15px;margin:9px 0;line-height:1.45;white-space:pre-wrap}.user{background:var(--accent);color:#111;margin-left:25%}.bot{background:var(--panel-2);margin-right:10%}
+.row{display:flex;gap:8px}.row input{flex:1;min-width:0;background:#0d0f10;border:1px solid #383b3d;color:#fff;border-radius:13px;padding:13px;outline:none}.row button{width:auto;padding-inline:20px}.ghost{background:var(--panel-2);color:#eee;margin-top:10px}
+.status{min-height:1.3em;color:var(--muted);font-size:12px;margin:8px 2px 0}
+footer{color:#777;text-align:center;font-size:12px;margin-top:10px}
+@media(max-width:520px){h1{font-size:44px}.grid{grid-template-columns:1fr}.hero{padding-top:28px}.row{align-items:stretch}.row button{padding-inline:14px}}
+</style>
+</head>
 <body>
-<header><div class="wrap" style="padding:0"><div class="logo">SILA <span>AI</span></div></div></header>
+<header><div class="wrap" style="padding:0"><div class="logo" aria-label="SILA AI">SILA <span>AI</span></div></div></header>
 <main class="wrap">
-<section class="hero"><div class="eyebrow">YOUR PERSONAL AI ASSISTANT</div>
-<h1>Your AI.<br>Your <em>ideas.</em><br>Your future.</h1>
-<p>SILA AI helps you think, write, plan, build and create — from your phone, in simple English or Swahili.</p>
-<button class="primary" onclick="openChat()">Chat with SILA AI</button></section>
-<section id="home"><h2>What can SILA do?</h2><div class="grid">
-<div class="card tool" onclick="start('Writing Assistant')"><div class="icon">✍️</div><h3>Writing Assistant</h3><p>Messages, letters, captions and applications.</p></div>
-<div class="card tool" onclick="start('Business Assistant')"><div class="icon">💼</div><h3>Business Assistant</h3><p>Business ideas, marketing, prices and plans.</p></div>
-<div class="card tool" onclick="start('Video Prompt Maker')"><div class="icon">🎬</div><h3>Video Prompt Maker</h3><p>Create strong AI-video prompts.</p></div>
-<div class="card tool" onclick="start('Creative Assistant')"><div class="icon">💡</div><h3>Creative Assistant</h3><p>Comedy, stories, content and branding.</p></div>
-<div class="card tool" onclick="start('Swahili / English')"><div class="icon">🌍</div><h3>Swahili / English</h3><p>Translate and write naturally.</p></div>
-<div class="card tool" onclick="openChat()"><div class="icon">🤖</div><h3>Ask SILA</h3><p>Ask questions and get step-by-step help.</p></div>
-</div></section>
-<section id="chat" class="card"><h2>🤖 Chat with SILA AI</h2><div class="messages" id="messages"><div class="msg bot">Hello! I'm SILA AI. What would you like to work on today?</div></div>
-<div class="row"><input id="prompt" placeholder="Type your message..." onkeydown="if(event.key==='Enter')send()"><button class="primary" onclick="send()">Send</button></div>
-<button class="ghost" onclick="closeChat()">← Back</button></section>
-<section class="card"><h2>Built for your future</h2><p style="color:#bbb;line-height:1.6">Start with useful tools today. Later we can connect a real AI model, voice, images, accounts and business tools.</p></section>
+<section class="hero" aria-labelledby="hero-title">
+<div class="eyebrow">YOUR PERSONAL AI ASSISTANT</div>
+<h1 id="hero-title">Your AI.<br>Your <em>ideas.</em><br>Your future.</h1>
+<p>SILA AI helps you think, write, plan, build, and create — from your phone, in simple English or Swahili.</p>
+<button class="primary" type="button" onclick="openChat()">Chat with SILA AI</button>
+</section>
+<section id="home" aria-labelledby="tools-title">
+<h2 id="tools-title">What can SILA do?</h2>
+<div class="grid">
+<button class="card tool" type="button" onclick="start('Writing Assistant')"><div class="icon" aria-hidden="true">✍️</div><h3>Writing Assistant</h3><p>Messages, letters, captions, and applications.</p></button>
+<button class="card tool" type="button" onclick="start('Business Assistant')"><div class="icon" aria-hidden="true">💼</div><h3>Business Assistant</h3><p>Business ideas, marketing, prices, and plans.</p></button>
+<button class="card tool" type="button" onclick="start('Video Prompt Maker')"><div class="icon" aria-hidden="true">🎬</div><h3>Video Prompt Maker</h3><p>Create strong AI-video prompts.</p></button>
+<button class="card tool" type="button" onclick="start('Creative Assistant')"><div class="icon" aria-hidden="true">💡</div><h3>Creative Assistant</h3><p>Comedy, stories, content, and branding.</p></button>
+<button class="card tool" type="button" onclick="start('Swahili / English')"><div class="icon" aria-hidden="true">🌍</div><h3>Swahili / English</h3><p>Translate and write naturally.</p></button>
+<button class="card tool" type="button" onclick="openChat()"><div class="icon" aria-hidden="true">🤖</div><h3>Ask SILA</h3><p>Ask questions and get step-by-step help.</p></button>
+</div>
+</section>
+<section id="chat" class="card" aria-labelledby="chat-title">
+<h2 id="chat-title">🤖 Chat with SILA AI</h2>
+<div class="messages" id="messages" role="log" aria-live="polite"><div class="msg bot">Hello! I'm SILA AI. What would you like to work on today?</div></div>
+<form class="row" onsubmit="send(event)"><label class="sr-only" for="prompt">Your message</label><input id="prompt" autocomplete="off" placeholder="Type your message..." required><button class="primary" type="submit">Send</button></form>
+<p class="status" id="status" aria-live="polite"></p>
+<button class="ghost" type="button" onclick="closeChat()">← Back</button>
+</section>
+<section class="card"><h2>Built for your future</h2><p style="color:#bbb;line-height:1.6">Start with useful tools today. Later we can connect a real AI model, voice, images, accounts, and business tools.</p></section>
+<footer>SILA AI · Your ideas, made clearer.</footer>
 </main>
 <script>
 const tips={
-'Writing Assistant':'Tell me what you want to write — WhatsApp message, job application, advert or caption.',
-'Business Assistant':'Tell me about your business and your goal. I can help with products, prices, marketing and plans.',
-'Video Prompt Maker':'Tell me the video you want and I will turn the idea into a detailed AI-video prompt.',
-'Creative Assistant':'Give me your idea. I can help develop comedy, stories, names, slogans and content.',
-'Swahili / English':'Send your text and tell me whether you want Swahili, English, or both.'
+  'Writing Assistant':'Tell me what you want to write — a WhatsApp message, job application, advert, or caption.',
+  'Business Assistant':'Tell me about your business and your goal. I can help with products, prices, marketing, and plans.',
+  'Video Prompt Maker':'Tell me the video you want and I will turn the idea into a detailed AI-video prompt.',
+  'Creative Assistant':'Give me your idea. I can help develop comedy, stories, names, slogans, and content.',
+  'Swahili / English':'Send your text and tell me whether you want Swahili, English, or both.'
 };
-function openChat(){home.style.display='none';chat.style.display='block';prompt.focus()}
-function closeChat(){chat.style.display='none';home.style.display='block'}
-function start(n){openChat();add('bot',tips[n])}
-function add(w,t){let d=document.createElement('div');d.className='msg '+w;d.textContent=t;messages.appendChild(d);messages.scrollTop=messages.scrollHeight}
-function send(){let t=prompt.value.trim();if(!t)return;add('user',t);prompt.value='';setTimeout(()=>add('bot','I received your message. This is the SILA AI interface. The next upgrade is connecting a real AI model for live answers.'),300)}
-</script></body></html>
+const home=document.getElementById('home');
+const chat=document.getElementById('chat');
+const promptInput=document.getElementById('prompt');
+const messages=document.getElementById('messages');
+const status=document.getElementById('status');
+function openChat(){home.style.display='none';chat.style.display='block';promptInput.focus();chat.scrollIntoView({behavior:'smooth',block:'start'})}
+function closeChat(){chat.style.display='none';home.style.display='block';document.getElementById('tools-title').scrollIntoView({behavior:'smooth'})}
+function start(name){openChat();add('bot',tips[name]||'How can I help you today?')}
+function add(type,text){const message=document.createElement('div');message.className='msg '+type;message.textContent=text;messages.appendChild(message);messages.scrollTop=messages.scrollHeight}
+function send(event){event.preventDefault();const text=promptInput.value.trim();if(!text)return;add('user',text);promptInput.value='';status.textContent='SILA is preparing a reply…';setTimeout(()=>{status.textContent='';add('bot','I received your message. This is the SILA AI interface. Connect a real AI model in your backend for live answers.')},500)}
+</script>
+</body>
+</html>
