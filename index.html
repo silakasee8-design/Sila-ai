@@ -8,7 +8,7 @@
   <title>SILA AI — Your AI. Your Ideas. Your Future.</title>
   <style>
     :root{--bg:#0b0d0e;--panel:#151819;--panel2:#202526;--text:#f5f0e8;--muted:#a8adae;--accent:#ff6b3d;--accent2:#ff9d72;--border:#2c3233;--ok:#78d6a3}
-    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 80% 0,#302016 0,transparent 35%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial,sans-serif}button,input{font:inherit}button{cursor:pointer;color:inherit}.wrap{width:min(1080px,calc(100% - 32px));margin:auto}header{border-bottom:1px solid var(--border);background:#0b0d0ed9;backdrop-filter:blur(12px);position:sticky;top:0;z-index:5}.nav{height:70px;display:flex;align-items:center;justify-content:space-between}.logo{font-weight:900;letter-spacing:.12em;font-size:1.15rem}.logo span{color:var(--accent)}.nav-actions{display:flex;gap:10px;align-items:center}.ghost,.small{background:transparent;border:1px solid var(--border);border-radius:10px;padding:9px 13px}.ghost:hover,.small:hover{border-color:var(--accent);color:var(--accent2)}.hero{padding:72px 0 48px;max-width:720px}.eyebrow{color:var(--accent2);font-size:.75rem;font-weight:800;letter-spacing:.18em}.hero h1{font-size:clamp(3rem,8vw,6.5rem);line-height:.92;letter-spacing:-.07em;margin:18px 0}.hero h1 em{color:var(--accent);font-style:normal}.hero p{color:var(--muted);font-size:1.1rem;line-height:1.7;max-width:600px}.section-title{margin:32px 0 18px;font-size:1.5rem}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{background:linear-gradient(145deg,#181c1d,#111415);border:1px solid var(--border);border-radius:18px}.tool{padding:20px;text-align:left;min-height:155px;transition:.2s;background:var(--panel);border:1px solid var(--border)}.tool:hover{transform:translateY(-3px);border-color:var(--accent);background:var(--panel2)}.icon{font-size:1.8rem}.tool h3{margin:12px 0 6px}.tool p{color:var(--muted);font-size:.9rem;line-height:1.4;margin:0}.chat{margin:48px 0 30px;padding:22px}.chat-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.chat h2{margin:0;font-size:1.35rem}.messages{height:360px;overflow-y:auto;padding:18px 4px;display:flex;flex-direction:column;gap:12px;margin:15px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}.msg{max-width:82%;padding:12px 15px;border-radius:15px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}.bot{background:var(--panel2);align-self:flex-start}.user{background:var(--accent);color:#160c08;align-self:flex-end}.typing{color:var(--muted);font-style:italic}.composer{display:flex;gap:8px}.composer input{min-width:0;flex:1;border:1px solid var(--border);background:#0d1010;color:var(--text);border-radius:12px;padding:13px 14px;outline:none}.composer input:focus{border-color:var(--accent)}.icon-btn,.send{border-radius:12px;border:1px solid var(--border);background:var(--panel2);padding:0 14px}.send{background:var(--accent);color:#160c08;font-weight:800;border:0}.status{color:var(--muted);font-size:.82rem;margin:10px 2px 0;min-height:1.2em}.note{color:var(--muted);line-height:1.6;padding:20px 0 70px}.hidden{display:none!important}@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.hero{padding-top:48px}.chat{padding:15px}.messages{height:330px}.msg{max-width:90%}}@media(max-width:440px){.grid{grid-template-columns:1fr}.nav .ghost{display:none}.composer{flex-wrap:wrap}.composer input{flex-basis:calc(100% - 60px)}.send{height:46px;flex:1}.icon-btn{height:46px;width:48px}}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 80% 0,#302016 0,transparent 35%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial,sans-serif}button,input,textarea{font:inherit}button{cursor:pointer;color:inherit}.wrap{width:min(1080px,calc(100% - 32px));margin:auto}header{border-bottom:1px solid var(--border);background:#0b0d0ed9;backdrop-filter:blur(12px);position:sticky;top:0;z-index:5}.nav{height:70px;display:flex;align-items:center;justify-content:space-between}.logo{font-weight:900;letter-spacing:.12em;font-size:1.15rem}.logo span{color:var(--accent)}.nav-actions{display:flex;gap:10px;align-items:center}.ghost,.small{background:transparent;border:1px solid var(--border);border-radius:10px;padding:9px 13px}.ghost:hover,.small:hover{border-color:var(--accent);color:var(--accent2)}.hero{padding:72px 0 48px;max-width:720px}.eyebrow{color:var(--accent2);font-size:.75rem;font-weight:800;letter-spacing:.18em}.hero h1{font-size:clamp(3rem,8vw,6.5rem);line-height:.92;letter-spacing:-.07em;margin:18px 0}.hero h1 em{color:var(--accent);font-style:normal}.hero p{color:var(--muted);font-size:1.1rem;line-height:1.7;max-width:600px}.section-title{margin:32px 0 18px;font-size:1.5rem}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{background:linear-gradient(145deg,#181c1d,#111415);border:1px solid var(--border);border-radius:18px}.tool{padding:20px;text-align:left;min-height:155px;transition:.2s;background:var(--panel);border:1px solid var(--border)}.tool:hover{transform:translateY(-3px);border-color:var(--accent);background:var(--panel2)}.icon{font-size:1.8rem}.tool h3{margin:12px 0 6px}.tool p{color:var(--muted);font-size:.9rem;line-height:1.4;margin:0}.chat{margin:48px 0 30px;padding:22px}.chat-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.chat h2{margin:0;font-size:1.35rem}.messages{height:300px;overflow-y:auto;padding:18px 4px;display:flex;flex-direction:column;gap:12px;margin:15px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}.msg{max-width:82%;padding:12px 15px;border-radius:15px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}.bot{background:var(--panel2);align-self:flex-start}.user{background:var(--accent);color:#160c08;align-self:flex-end}.typing{color:var(--muted);font-style:italic}.reviewBoxWrap{margin-bottom:12px}.reviewBox{width:100%;min-height:120px;background:#0d1010;border:1px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);resize:vertical;outline:none}.reviewBox:focus{border-color:var(--accent)}.composer{display:flex;gap:8px}.composer input{min-width:0;flex:1;border:1px solid var(--border);background:#0d1010;color:var(--text);border-radius:12px;padding:13px 14px;outline:none}.composer input:focus{border-color:var(--accent)}.icon-btn,.send{border-radius:12px;border:1px solid var(--border);background:var(--panel2);padding:0 14px}.send{background:var(--accent);color:#160c08;font-weight:800;border:0}.status{color:var(--muted);font-size:.82rem;margin:10px 2px 0;min-height:1.2em}.note{color:var(--muted);line-height:1.6;padding:20px 0 70px}.hidden{display:none!important}@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.hero{padding-top:48px}.chat{padding:15px}.messages{height:270px}.msg{max-width:90%}}@media(max-width:440px){.grid{grid-template-columns:1fr}.nav .ghost{display:none}.composer{flex-wrap:wrap}.composer input{flex-basis:calc(100% - 60px)}.send{height:46px;flex:1}.icon-btn{height:46px;width:48px}}
   </style>
 </head>
 <body>
@@ -51,6 +51,9 @@
         <button class="small" type="button" onclick="closeChat()">Back</button>
       </div>
       <div class="messages" id="messages" role="log" aria-live="polite"></div>
+      <div class="reviewBoxWrap">
+        <textarea id="reviewText" class="reviewBox hidden" aria-label="Paste text for review" placeholder="Paste text for a quick review…"></textarea>
+      </div>
       <form class="composer" id="chatForm">
         <input id="prompt" autocomplete="off" maxlength="8000" placeholder="Ask in English or Swahili…" aria-label="Your message">
         <button class="icon-btn" type="button" id="voiceBtn" title="Use voice input" aria-label="Use voice input">🎙️</button>
@@ -59,7 +62,7 @@
       <div class="status" id="status" role="status"></div>
     </section>
 
-    <p class="note">Your conversation is saved in this browser so you can continue later. Do not enter passwords or sensitive personal information. Voice input uses your browser’s speech-recognition support when available.</p>
+    <p class="note">Paste text into the review box for quick grammar, document, business, or code checks. Voice input uses your browser’s speech-recognition support when available.</p>
   </main>
 
   <script>
@@ -69,15 +72,16 @@
       'Video Prompt Maker': 'What video do you want to create? Include the subject, style, mood, and platform.',
       'Creative Assistant': 'What would you like to create today?',
       'Swahili / English': 'Send me text to translate or tell me which language you prefer.',
-      grammar: { starter: 'Paste your text and I will correct grammar, punctuation, clarity, and tone.', placeholder: 'Paste text to review or rewrite…' },
-      code: { starter: 'Paste your code or describe the bug. I will review logic, quality, and likely fixes.', placeholder: 'Paste code or describe a bug…' },
-      business: { starter: 'Share your idea, product, or business plan. I will review the value proposition, risks, and opportunities.', placeholder: 'Describe your business idea or plan…' },
-      document: { starter: 'Paste a document section and I will improve structure, clarity, and formatting.', placeholder: 'Paste a paragraph or report section…' }
+      grammar: { starter: 'Paste your text and I will correct grammar, punctuation, clarity, and tone.', placeholder: 'Ask a quick question or paste text to review…', reviewLabel: 'Paste text for grammar checking' },
+      code: { starter: 'Paste your code or describe the bug. I will review logic, quality, and likely fixes.', placeholder: 'Paste code or describe a bug…', reviewLabel: 'Paste code, error logs, or a function for review' },
+      business: { starter: 'Share your idea, product, or business plan. I will review the value proposition, risks, and opportunities.', placeholder: 'Describe your business idea or plan…', reviewLabel: 'Paste business idea, plan, or pitch text' },
+      document: { starter: 'Paste a document section and I will improve structure, clarity, and formatting.', placeholder: 'Paste a paragraph or report section…', reviewLabel: 'Paste the document text for review' }
     };
 
     const home = document.getElementById('home');
     const chat = document.getElementById('chat');
     const input = document.getElementById('prompt');
+    const reviewText = document.getElementById('reviewText');
     const messages = document.getElementById('messages');
     const status = document.getElementById('status');
     const storageKey = 'sila-chat-history';
@@ -86,10 +90,16 @@
     function setMode(mode) {
       activeMode = mode || 'general';
       const config = tips[activeMode] || null;
+      const isSpecial = ['grammar','code','business','document'].includes(activeMode);
+      reviewText.classList.toggle('hidden', !isSpecial);
+      reviewText.setAttribute('placeholder', isSpecial ? (config?.reviewLabel || 'Paste text for review…') : 'Paste text for a quick review…');
       if (config && config.placeholder) {
         input.placeholder = config.placeholder;
       } else {
         input.placeholder = 'Ask in English or Swahili…';
+      }
+      if (!isSpecial) {
+        reviewText.value = '';
       }
     }
 
@@ -146,10 +156,15 @@
 
     async function send(event) {
       event.preventDefault();
-      const text = input.value.trim();
+      const quickText = reviewText.value.trim();
+      const shortText = input.value.trim();
+      const combinedText = quickText || shortText;
+      const text = combinedText.trim();
       if (!text) return;
-      add('user', text);
+
+      add('user', quickText ? quickText : shortText);
       input.value = '';
+      reviewText.value = '';
       status.textContent = 'SILA is preparing a reply…';
 
       const typing = document.createElement('div');

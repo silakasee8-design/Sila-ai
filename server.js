@@ -13,21 +13,28 @@ const jwtSecret = process.env.JWT_SECRET;
 const pool = process.env.DATABASE_URL ? new Pool({ connectionString: process.env.DATABASE_URL, ssl: isProduction ? { rejectUnauthorized: false } : false }) : null;
 const client = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
 
+const reviewFormats = {
+  grammar: 'Return output in this exact format:\n\n1. Corrected version:\n[full corrected text]\n2. Key fixes:\n- [fix 1]\n- [fix 2]\n3. Summary:\n[1-2 sentence summary]',
+  code: 'Return output in this exact format:\n\nScore: [0-10]\nStrengths:\n- [strength]\nIssues:\n- [issue]\nImprovements:\n1. [improvement]\n2. [improvement]\nFinal recommendation: [short recommendation]',
+  business: 'Return output in this exact format:\n\nScore: [0-10]\nStrengths:\n- [strength]\nWeak points:\n- [weak point]\nOpportunities:\n- [opportunity]\nRisks:\n- [risk]\nImprovement plan:\n1. [step]\n2. [step]\nFinal recommendation: [short recommendation]',
+  document: 'Return output in this exact format:\n\nOverall score: [0-10]\nTop issues:\n- [issue]\nSuggested improvements:\n1. [improvement]\n2. [improvement]\nRevised version:\n[short rewritten version or summary]'
+};
+
 const modePrompts = {
   general: {
     system: 'You are SILA AI, a friendly and practical assistant. Help with writing, business ideas, creativity, productivity, and English or Swahili communication. Respond in the language the user is using.'
   },
   grammar: {
-    system: 'You are a professional grammar and writing editor. Correct grammar, punctuation, clarity, tone, and structure. Preserve the user\'s meaning while improving readability. Return clear corrected text and explain only the most important fixes when useful.'
+    system: 'You are a professional grammar and writing editor. Correct grammar, punctuation, clarity, tone, and structure. Preserve the user\'s meaning while improving readability. ' + reviewFormats.grammar
   },
   code: {
-    system: 'You are an expert software code reviewer and debugging assistant. Review code for correctness, bugs, performance, readability, and maintainability. Give specific recommendations, root causes, and improvement suggestions. If code is incomplete, explain the likely issue and how to fix it.'
+    system: 'You are an expert software code reviewer and debugging assistant. Review code for correctness, bugs, performance, readability, and maintainability. Give specific recommendations, root causes, and improvement suggestions. If code is incomplete, explain the likely issue and how to fix it. ' + reviewFormats.code
   },
   business: {
-    system: 'You are a business strategy reviewer. Evaluate ideas, plans, value propositions, operations, risks, and opportunities. Use practical, realistic advice and highlight assumptions, weak points, and next steps for a business or startup.'
+    system: 'You are a business strategy reviewer. Evaluate ideas, plans, value propositions, operations, risks, and opportunities. Use practical, realistic advice and highlight assumptions, weak points, and next steps for a business or startup. ' + reviewFormats.business
   },
   document: {
-    system: 'You are a document editor and reviewer. Improve clarity, structure, formatting, tone, and professionalism for reports, proposals, notes, contracts, and other written documents. Keep the original intent while enhancing readability and coherence.'
+    system: 'You are a document editor and reviewer. Improve clarity, structure, formatting, tone, and professionalism for reports, proposals, notes, contracts, and other written documents. Keep the original intent while enhancing readability and coherence. ' + reviewFormats.document
   }
 };
 
@@ -41,70 +48,32 @@ async function initDb() {
     CREATE INDEX IF NOT EXISTS messages_user_created_idx ON messages(user_id, created_at);`);
 }
 
-function tokenFor(user) {
-  return jwt.sign({ id: user.id, email: user.email }, jwtSecret, { expiresIn: '30d' });
-}
-
-function setAuthCookie(res, token) {
-  res.setHeader('Set-Cookie', `sila_token=${token}; HttpOnly; Path=/; Max-Age=${30 * 86400}; SameSite=Lax${isProduction ? '; Secure' : ''}`);
-}
-
-function clearAuthCookie(res) {
-  res.setHeader('Set-Cookie', 'sila_token=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax');
-}
-
-function readToken(req) {
-  const raw = req.headers.cookie || '';
-  const match = raw.match(/(?:^|; )sila_token=([^;]+)/);
-  return match ? decodeURIComponent(match[1]) : null;
-}
-
+function tokenFor(user) { return jwt.sign({ id: user.id, email: user.email }, jwtSecret, { expiresIn: '30d' }); }
+function setAuthCookie(res, token) { res.setHeader('Set-Cookie', `sila_token=${token}; HttpOnly; Path=/; Max-Age=${30 * 86400}; SameSite=Lax${isProduction ? '; Secure' : ''}`); }
+function clearAuthCookie(res) { res.setHeader('Set-Cookie', 'sila_token=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax'); }
+function readToken(req) { const raw = req.headers.cookie || ''; const match = raw.match(/(?:^|; )sila_token=([^;]+)/); return match ? decodeURIComponent(match[1]) : null; }
 function authRequired(req, res, next) {
-  if (!pool || !jwtSecret) {
-    return res.status(503).json({ error: 'Authentication is not configured.' });
-  }
-  try {
-    req.user = jwt.verify(readToken(req) || '', jwtSecret);
-    next();
-  } catch (error) {
-    res.status(401).json({ error: 'Please log in to continue.' });
-  }
+  if (!pool || !jwtSecret) return res.status(503).json({ error: 'Authentication is not configured.' });
+  try { req.user = jwt.verify(readToken(req) || '', jwtSecret); next(); }
+  catch (error) { res.status(401).json({ error: 'Please log in to continue.' }); }
 }
-
-function validEmail(email) {
-  return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
-}
-
-function resolveMode(mode) {
-  const value = typeof mode === 'string' ? mode.toLowerCase() : 'general';
-  return modePrompts[value] ? value : 'general';
-}
+function validEmail(email) { return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email); }
+function resolveMode(mode) { const value = typeof mode === 'string' ? mode.toLowerCase() : 'general'; return modePrompts[value] ? value : 'general'; }
 
 app.get('/api/health', async (req, res) => {
   let database = false;
   try {
-    if (pool) {
-      await pool.query('SELECT 1');
-      database = true;
-    }
+    if (pool) { await pool.query('SELECT 1'); database = true; }
   } catch (error) {
     database = false;
   }
-
-  res.json({
-    ok: true,
-    aiConfigured: Boolean(client),
-    databaseConfigured: Boolean(pool) && database,
-    model: process.env.OPENAI_MODEL || 'gpt-4o-mini'
-  });
+  res.json({ ok: true, aiConfigured: Boolean(client), databaseConfigured: Boolean(pool) && database, model: process.env.OPENAI_MODEL || 'gpt-4o-mini' });
 });
 
 app.post('/api/auth/register', async (req, res) => {
   if (!pool || !jwtSecret) return res.status(503).json({ error: 'Authentication is not configured.' });
-
   const email = typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : '';
   const password = typeof req.body.password === 'string' ? req.body.password : '';
-
   if (!validEmail(email)) return res.status(400).json({ error: 'Enter a valid email address.' });
   if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters.' });
 
@@ -124,17 +93,14 @@ app.post('/api/auth/register', async (req, res) => {
 
 app.post('/api/auth/login', async (req, res) => {
   if (!pool || !jwtSecret) return res.status(503).json({ error: 'Authentication is not configured.' });
-
   const email = typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : '';
   const password = typeof req.body.password === 'string' ? req.body.password : '';
-
   try {
     const result = await pool.query('SELECT id,email,password_hash FROM users WHERE email=$1', [email]);
     const user = result.rows[0];
     if (!user || !(await bcrypt.compare(password, user.password_hash))) {
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
-
     setAuthCookie(res, tokenFor(user));
     res.json({ user: { id: user.id, email: user.email } });
   } catch (error) {
@@ -143,14 +109,8 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-app.post('/api/auth/logout', (req, res) => {
-  clearAuthCookie(res);
-  res.json({ ok: true });
-});
-
-app.get('/api/auth/me', authRequired, (req, res) => {
-  res.json({ user: { id: req.user.id, email: req.user.email } });
-});
+app.post('/api/auth/logout', (req, res) => { clearAuthCookie(res); res.json({ ok: true }); });
+app.get('/api/auth/me', authRequired, (req, res) => res.json({ user: { id: req.user.id, email: req.user.email } }));
 
 app.get('/api/history', authRequired, async (req, res) => {
   try {
@@ -175,25 +135,14 @@ app.delete('/api/history', authRequired, async (req, res) => {
 app.post('/api/chat', authRequired, async (req, res) => {
   const message = typeof req.body.message === 'string' ? req.body.message.trim() : '';
   const mode = resolveMode(req.body.mode);
-
-  if (!message) {
-    return res.status(400).json({ error: 'Message is required.' });
-  }
-
-  if (message.length > 8000) {
-    return res.status(413).json({ error: 'Message is too long.' });
-  }
-
-  if (!client) {
-    return res.status(503).json({ error: 'The AI service is not configured yet.' });
-  }
+  if (!message) return res.status(400).json({ error: 'Message is required.' });
+  if (message.length > 8000) return res.status(413).json({ error: 'Message is too long.' });
+  if (!client) return res.status(503).json({ error: 'The AI service is not configured yet.' });
 
   try {
     await pool.query('INSERT INTO messages(user_id,role,content) VALUES($1,$2,$3)', [req.user.id, 'user', message]);
-
     const previous = await pool.query('SELECT role,content FROM messages WHERE user_id=$1 ORDER BY created_at DESC LIMIT 20', [req.user.id]);
     const systemMessage = modePrompts[mode].system;
-
     const completion = await client.chat.completions.create({
       model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
       messages: [
@@ -201,11 +150,9 @@ app.post('/api/chat', authRequired, async (req, res) => {
         ...previous.rows.reverse().map((row) => ({ role: row.role, content: row.content }))
       ],
       temperature: 0.7,
-      max_tokens: 800
+      max_tokens: 850
     });
-
     const reply = completion.choices?.[0]?.message?.content?.trim() || 'I could not generate a reply. Please try again.';
-
     await pool.query('INSERT INTO messages(user_id,role,content) VALUES($1,$2,$3)', [req.user.id, 'assistant', reply]);
     res.json({ reply, mode });
   } catch (error) {
@@ -216,9 +163,7 @@ app.post('/api/chat', authRequired, async (req, res) => {
 
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-initDb()
-  .then(() => app.listen(port, () => console.log(`SILA AI is running at http://localhost:${port}`)))
-  .catch((error) => {
-    console.error('Database startup failed:', error);
-    process.exit(1);
-  });
+initDb().then(() => app.listen(port, () => console.log(`SILA AI is running at http://localhost:${port}`))).catch((error) => {
+  console.error('Database startup failed:', error);
+  process.exit(1);
+});
