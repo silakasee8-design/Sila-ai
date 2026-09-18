@@ -12,39 +12,221 @@
   </style>
 </head>
 <body>
-  <header><div class="wrap nav"><div class="logo" aria-label="SILA AI">SILA <span>AI</span></div><div class="nav-actions"><button class="ghost" type="button" id="clearBtn">Clear chat</button><button class="ghost" type="button" onclick="openChat()">Ask SILA</button></div></div></header>
+  <header>
+    <div class="wrap nav">
+      <div class="logo" aria-label="SILA AI">SILA <span>AI</span></div>
+      <div class="nav-actions">
+        <button class="ghost" type="button" id="clearBtn">Clear chat</button>
+        <button class="ghost" type="button" onclick="openChat()">Ask SILA</button>
+      </div>
+    </div>
+  </header>
+
   <main class="wrap">
-    <section class="hero"><div class="eyebrow">YOUR PERSONAL AI ASSISTANT</div><h1>Your AI.<br>Your <em>ideas.</em><br>Your future.</h1><p>SILA AI helps you think, write, plan, build, and create in English or Swahili. Choose a tool below or ask anything.</p></section>
-    <section id="home"><h2 class="section-title">What can SILA do?</h2><div class="grid">
-      <button class="tool card" type="button" onclick="start('Writing Assistant')"><div class="icon">✍️</div><h3>Writing Assistant</h3><p>Messages, letters, captions, and applications.</p></button>
-      <button class="tool card" type="button" onclick="start('Business Assistant')"><div class="icon">💼</div><h3>Business Assistant</h3><p>Business ideas, marketing, prices, and plans.</p></button>
-      <button class="tool card" type="button" onclick="start('Video Prompt Maker')"><div class="icon">🎬</div><h3>Video Prompt Maker</h3><p>Create strong AI-video prompts.</p></button>
-      <button class="tool card" type="button" onclick="start('Creative Assistant')"><div class="icon">💡</div><h3>Creative Assistant</h3><p>Comedy, stories, content, and branding.</p></button>
-      <button class="tool card" type="button" onclick="start('Swahili / English')"><div class="icon">🌍</div><h3>Swahili / English</h3><p>Translate and write naturally.</p></button>
-      <button class="tool card" type="button" onclick="openChat()"><div class="icon">🤖</div><h3>Ask SILA</h3><p>Ask questions and get step-by-step help.</p></button>
-    </div></section>
-    <section id="chat" class="card chat" aria-labelledby="chat-title">
-      <div class="chat-head"><h2 id="chat-title">🤖 Chat with SILA AI</h2><button class="small" type="button" onclick="closeChat()">Back</button></div>
+    <section class="hero">
+      <div class="eyebrow">YOUR PERSONAL AI ASSISTANT</div>
+      <h1>Your AI.<br>Your <em>ideas.</em><br>Your future.</h1>
+      <p>SILA AI helps you think, write, plan, build, and create in English or Swahili. Choose a tool below or ask anything.</p>
+    </section>
+
+    <section id="home">
+      <h2 class="section-title">What can SILA do?</h2>
+      <div class="grid">
+        <button class="tool card" type="button" onclick="start('grammar')"><div class="icon">✅</div><h3>Grammar Checker</h3><p>Correct grammar, punctuation, and tone.</p></button>
+        <button class="tool card" type="button" onclick="start('code')"><div class="icon">💻</div><h3>Code Reviewer</h3><p>Review logic, bugs, quality, and improvements.</p></button>
+        <button class="tool card" type="button" onclick="start('business')"><div class="icon">📈</div><h3>Business Review Assistant</h3><p>Review business ideas, plans, and positioning.</p></button>
+        <button class="tool card" type="button" onclick="start('document')"><div class="icon">📄</div><h3>Document Checker</h3><p>Improve reports, proposals, and onboarding text.</p></button>
+        <button class="tool card" type="button" onclick="start('Writing Assistant')"><div class="icon">✍️</div><h3>Writing Assistant</h3><p>Messages, letters, captions, and applications.</p></button>
+        <button class="tool card" type="button" onclick="start('Business Assistant')"><div class="icon">💼</div><h3>Business Assistant</h3><p>Business ideas, marketing, prices, and plans.</p></button>
+        <button class="tool card" type="button" onclick="start('Video Prompt Maker')"><div class="icon">🎬</div><h3>Video Prompt Maker</h3><p>Create strong AI-video prompts.</p></button>
+        <button class="tool card" type="button" onclick="start('Creative Assistant')"><div class="icon">💡</div><h3>Creative Assistant</h3><p>Comedy, stories, content, and branding.</p></button>
+        <button class="tool card" type="button" onclick="start('Swahili / English')"><div class="icon">🌍</div><h3>Swahili / English</h3><p>Translate and write naturally.</p></button>
+        <button class="tool card" type="button" onclick="openChat()"><div class="icon">🤖</div><h3>Ask SILA</h3><p>Ask questions and get step-by-step help.</p></button>
+      </div>
+    </section>
+
+    <section id="chat" class="card chat hidden" aria-labelledby="chat-title">
+      <div class="chat-head">
+        <h2 id="chat-title">🤖 Chat with SILA AI</h2>
+        <button class="small" type="button" onclick="closeChat()">Back</button>
+      </div>
       <div class="messages" id="messages" role="log" aria-live="polite"></div>
-      <form class="composer" id="chatForm"><input id="prompt" autocomplete="off" maxlength="8000" placeholder="Ask in English or Swahili…" aria-label="Your message"><button class="icon-btn" type="button" id="voiceBtn" title="Use voice input" aria-label="Use voice input">🎙️</button><button class="send" type="submit">Send</button></form>
+      <form class="composer" id="chatForm">
+        <input id="prompt" autocomplete="off" maxlength="8000" placeholder="Ask in English or Swahili…" aria-label="Your message">
+        <button class="icon-btn" type="button" id="voiceBtn" title="Use voice input" aria-label="Use voice input">🎙️</button>
+        <button class="send" type="submit">Send</button>
+      </form>
       <div class="status" id="status" role="status"></div>
     </section>
+
     <p class="note">Your conversation is saved in this browser so you can continue later. Do not enter passwords or sensitive personal information. Voice input uses your browser’s speech-recognition support when available.</p>
   </main>
+
   <script>
-    const tips={Writing Assistant:'Tell me what you want to write — a WhatsApp message, job application, advert, or caption.',Business Assistant:'Tell me about your business and your goal. I can help you make a practical plan.',Video Prompt Maker:'What video do you want to create? Include the subject, style, mood, and platform.',Creative Assistant:'What would you like to create today?', 'Swahili / English':'Send me text to translate or tell me which language you prefer.'};
-    const home=document.getElementById('home'),chat=document.getElementById('chat'),input=document.getElementById('prompt'),messages=document.getElementById('messages'),status=document.getElementById('status'),storageKey='sila-chat-history';
-    function openChat(){chat.classList.remove('hidden');home.classList.add('hidden');input.focus();chat.scrollIntoView({behavior:'smooth',block:'start'})}
-    function closeChat(){chat.classList.add('hidden');home.classList.remove('hidden');home.scrollIntoView({behavior:'smooth'})}
-    function add(type,text,save=true){const el=document.createElement('div');el.className='msg '+type;el.textContent=text;messages.appendChild(el);messages.scrollTop=messages.scrollHeight;if(save)saveHistory()}
-    function saveHistory(){localStorage.setItem(storageKey,JSON.stringify([...messages.querySelectorAll('.msg')].map(x=>({type:x.classList.contains('user')?'user':'bot',text:x.textContent}))));}
-    function loadHistory(){try{const data=JSON.parse(localStorage.getItem(storageKey)||'[]');if(data.length)data.forEach(x=>add(x.type,x.text,false));else add('bot','Hello! I’m SILA AI. How can I help you today?',false)}catch(e){add('bot','Hello! I’m SILA AI. How can I help you today?',false)}}
-    function start(name){openChat();add('bot',tips[name]||'How can I help you today?')}
-    async function send(event){event.preventDefault();const text=input.value.trim();if(!text)return;add('user',text);input.value='';status.textContent='SILA is preparing a reply…';const typing=document.createElement('div');typing.className='msg bot typing';typing.textContent='Thinking…';messages.appendChild(typing);try{const response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text})});let data={};try{data=await response.json()}catch(e){}if(!response.ok)throw new Error(data.error||'The server returned an error.');typing.remove();add('bot',data.reply||'I could not generate a reply. Please try again.')}catch(error){typing.remove();add('bot','I’m sorry — '+error.message+' Please check that the server and OpenAI API key are configured.');}finally{status.textContent=''}}
-    function clearChat(){if(!confirm('Clear this conversation?'))return;messages.innerHTML='';localStorage.removeItem(storageKey);add('bot','Conversation cleared. How can I help?',false)}
-    document.getElementById('chatForm').addEventListener('submit',send);document.getElementById('clearBtn').addEventListener('click',clearChat);loadHistory();
-    const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;const voiceBtn=document.getElementById('voiceBtn');
-    if(SpeechRecognition){const recognition=new SpeechRecognition();recognition.lang='en-US';recognition.interimResults=false;recognition.onstart=()=>{voiceBtn.textContent='⏹️';status.textContent='Listening…'};recognition.onend=()=>{voiceBtn.textContent='🎙️';if(status.textContent==='Listening…')status.textContent=''};recognition.onresult=e=>{input.value+=(input.value?' ':'')+e.results[0][0].transcript;input.focus()};recognition.onerror=()=>{status.textContent='Voice input was not available.'};voiceBtn.addEventListener('click',()=>recognition.start())}else{voiceBtn.disabled=true;voiceBtn.title='Voice input is not supported by this browser'}
+    const tips = {
+      'Writing Assistant': 'Tell me what you want to write — a WhatsApp message, job application, advert, or caption.',
+      'Business Assistant': 'Tell me about your business and your goal. I can help you make a practical plan.',
+      'Video Prompt Maker': 'What video do you want to create? Include the subject, style, mood, and platform.',
+      'Creative Assistant': 'What would you like to create today?',
+      'Swahili / English': 'Send me text to translate or tell me which language you prefer.',
+      grammar: { starter: 'Paste your text and I will correct grammar, punctuation, clarity, and tone.', placeholder: 'Paste text to review or rewrite…' },
+      code: { starter: 'Paste your code or describe the bug. I will review logic, quality, and likely fixes.', placeholder: 'Paste code or describe a bug…' },
+      business: { starter: 'Share your idea, product, or business plan. I will review the value proposition, risks, and opportunities.', placeholder: 'Describe your business idea or plan…' },
+      document: { starter: 'Paste a document section and I will improve structure, clarity, and formatting.', placeholder: 'Paste a paragraph or report section…' }
+    };
+
+    const home = document.getElementById('home');
+    const chat = document.getElementById('chat');
+    const input = document.getElementById('prompt');
+    const messages = document.getElementById('messages');
+    const status = document.getElementById('status');
+    const storageKey = 'sila-chat-history';
+    let activeMode = 'general';
+
+    function setMode(mode) {
+      activeMode = mode || 'general';
+      const config = tips[activeMode] || null;
+      if (config && config.placeholder) {
+        input.placeholder = config.placeholder;
+      } else {
+        input.placeholder = 'Ask in English or Swahili…';
+      }
+    }
+
+    function openChat() {
+      chat.classList.remove('hidden');
+      home.classList.add('hidden');
+      input.focus();
+      chat.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function closeChat() {
+      chat.classList.add('hidden');
+      home.classList.remove('hidden');
+      home.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function add(type, text, save = true) {
+      const el = document.createElement('div');
+      el.className = 'msg ' + type;
+      el.textContent = text;
+      messages.appendChild(el);
+      messages.scrollTop = messages.scrollHeight;
+      if (save) saveHistory();
+    }
+
+    function saveHistory() {
+      const rows = [...messages.querySelectorAll('.msg')].map((x) => ({
+        type: x.classList.contains('user') ? 'user' : 'bot',
+        text: x.textContent
+      }));
+      localStorage.setItem(storageKey, JSON.stringify(rows));
+    }
+
+    function loadHistory() {
+      try {
+        const data = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        if (data.length) {
+          data.forEach((x) => add(x.type, x.text, false));
+        } else {
+          add('bot', 'Hello! I’m SILA AI. How can I help you today?', false);
+        }
+      } catch (error) {
+        add('bot', 'Hello! I’m SILA AI. How can I help you today?', false);
+      }
+    }
+
+    function start(name) {
+      setMode(name);
+      openChat();
+      const config = tips[name];
+      const message = (typeof config === 'string' ? config : config?.starter) || 'How can I help you today?';
+      add('bot', message);
+    }
+
+    async function send(event) {
+      event.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+      add('user', text);
+      input.value = '';
+      status.textContent = 'SILA is preparing a reply…';
+
+      const typing = document.createElement('div');
+      typing.className = 'msg bot typing';
+      typing.textContent = 'Thinking…';
+      messages.appendChild(typing);
+
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, mode: activeMode })
+        });
+
+        let data = {};
+        try {
+          data = await response.json();
+        } catch (error) {
+          data = {};
+        }
+
+        if (!response.ok) {
+          throw new Error(data.error || 'The server returned an error.');
+        }
+
+        typing.remove();
+        add('bot', data.reply || 'I could not generate a reply. Please try again.');
+      } catch (error) {
+        typing.remove();
+        add('bot', 'I’m sorry — ' + error.message + ' Please check that the server and OpenAI API key are configured.');
+      } finally {
+        status.textContent = '';
+      }
+    }
+
+    function clearChat() {
+      if (!confirm('Clear this conversation?')) return;
+      messages.innerHTML = '';
+      localStorage.removeItem(storageKey);
+      add('bot', 'Conversation cleared. How can I help?', false);
+    }
+
+    document.getElementById('chatForm').addEventListener('submit', send);
+    document.getElementById('clearBtn').addEventListener('click', clearChat);
+    setMode('general');
+    loadHistory();
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const voiceBtn = document.getElementById('voiceBtn');
+
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.onstart = () => {
+        voiceBtn.textContent = '⏹️';
+        status.textContent = 'Listening…';
+      };
+      recognition.onend = () => {
+        voiceBtn.textContent = '🎙️';
+        if (status.textContent === 'Listening…') {
+          status.textContent = '';
+        }
+      };
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        input.value = (input.value ? input.value + ' ' : '') + transcript;
+        input.focus();
+      };
+      recognition.onerror = () => {
+        status.textContent = 'Voice input was not available.';
+      };
+      voiceBtn.addEventListener('click', () => recognition.start());
+    } else {
+      voiceBtn.disabled = true;
+      voiceBtn.title = 'Voice input is not supported by this browser';
+    }
   </script>
 </body>
 </html>
