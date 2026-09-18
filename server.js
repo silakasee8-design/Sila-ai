@@ -5,15 +5,20 @@ require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 3000;
-
-if (!process.env.OPENAI_API_KEY) {
-  console.warn('OPENAI_API_KEY is not set. Add it to your .env file before using chat.');
-}
-
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const client = process.env.OPENAI_API_KEY
+  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  : null;
 
 app.use(express.json({ limit: '20kb' }));
 app.use(express.static(__dirname));
+
+app.get('/api/health', (req, res) => {
+  res.json({
+    ok: true,
+    aiConfigured: Boolean(process.env.OPENAI_API_KEY),
+    model: process.env.OPENAI_MODEL || 'gpt-4o-mini'
+  });
+});
 
 app.post('/api/chat', async (req, res) => {
   const message = typeof req.body.message === 'string' ? req.body.message.trim() : '';
@@ -22,7 +27,11 @@ app.post('/api/chat', async (req, res) => {
     return res.status(400).json({ error: 'Message is required.' });
   }
 
-  if (!process.env.OPENAI_API_KEY) {
+  if (message.length > 8000) {
+    return res.status(413).json({ error: 'Message is too long.' });
+  }
+
+  if (!client) {
     return res.status(503).json({ error: 'The AI service is not configured yet.' });
   }
 
